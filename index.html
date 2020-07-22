@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!-- saved from url=(0037)https://calipso.co/teleantioquia.html -->
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>Prueba Integracion Teleantioquia</title>
+
+</head>
+
+<body>
+  <!-- <script src="./index_files/jquery.min.js.descarga"
+    integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+    crossorigin="anonymous"></script> -->
+  <script src="./index_files/124"></script>
+  <div id="kaltura_player_1595350656" class="kWidgetIframeContainer"
+    style="width: 1024px; height: 576px; overflow: hidden;">
+    <iframe id="kaltura_player_1595350656_ifp" scrolling="no" name="kaltura_player_1595350656_ifp"
+      class="mwEmbedKalturaIframe" title="The Kaltura Dynamic Video Player" frameborder="0" allowfullscreen="true"
+      webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay *; fullscreen *; encrypted-media *"
+      style="border: 0px; max-width: 100%; max-height: 100%; width: 100%; height: 100%;"
+      src="./index_files/saved_resource.html"></iframe>
+  </div>
+
+  <script src="springstreams.js"></script>
+  <script>
+    kWidget.embed({
+      "targetId": "kaltura_player_1595350656",
+      "wid": "_124",
+      "uiconf_id": 23449056,
+      "flashvars": {},
+      "cache_st": 1595350656,
+      "entry_id": "0_o163skrm"
+    });
+
+    if (console && console.log) console.log('OnPage Js: fooBar1');
+
+    KWidget.addReadyCallback(function (playerId) {
+      if (console && console.log) {
+        console.log('OnPage Js: fooBar1: player ready: ' + playerId);
+      }
+
+      var kdp = document.getElementById(playerId);
+      // console.log(kdp);
+      // initPlaybackTrackingWithEvaluate(kdp);
+      initPlaybackTrackingWithEvents(kdp);
+    });
+
+    var info = {
+      currentTime: 0,
+      width: 100,
+      height: 100,
+    };
+    function initPlaybackTrackingWithEvents(kdp) {
+      var startTime = new Date();
+      // Triggers few times a second while the player plays.
+      // Used to update the play head and for sync tasks.
+      // The exact event interval is defined by the
+      // EmbedPlayer.MonitorRate Flashvar.
+      // This events stop getting invoked when the player is paused.
+      kdp.kBind('monitorEvent', function () {
+        var currentTime = new Date;
+        // Elapsed time in seconds.
+        var elapsedTime = (currentTime.getTime() - startTime.getTime()) / 1000;
+        info.currentTime = elapsedTime;
+      });
+
+      info.width = kdp.evaluate('{video.player.width}');
+      info.height = kdp.evaluate('{video.player.height}');
+    }
+
+    // Integrating ibope library
+    // https://gist.github.com/jorovipe97/e54e5b1d6fe0fecaae4904cf3b02a2bf
+    // An object with attributes required by the ibope library
+    var ibopeDescriptions = {
+      // Unique name per broadcaster player
+      "sitename": 'teleantioquia-browser-test',
+      // Broadcaster website being used
+      "pl": 'teleantioquia_general',
+      // Version of media player being used
+      "plv": '1.0',
+      // Program ID
+      // To identify each live program, please use the value “null”
+      "cq": null, // because it's a live example. Details on this are in the Ibope docs (not important for now)
+      // Combination of Stream Type and Channel ID
+      // Teleantioquia' channel ID will always be the value "13".
+      "stream": 'live/13', // example. live/13
+      // Device of consumption: desktop, smart-TV, mobile, Android, iOS, ..
+      "ct": 'desktop',
+      // Total length of the video being played, reported in seconds
+      // In case of simulcast content (live), insert  the value "0" 
+      "dur": 0 // because it's a live example.
+    };
+
+    // Sitename isn't a dom element but just an arbitrary string to identify the website
+    // pluginVariables is defined from the php side of the wordpress plugin that I've developed for the integration.
+    // SpringStreams is the main class on the ibope analytics sdk
+    var sensors = new SpringStreams('teleantioquia-browser-test');
+    var Adapter = {
+      getMeta: function (id) {
+        var meta = {
+          "pl": 'teleantioquia_general',
+          "plv": '1.0',
+          "sx": 100,
+          "sy": 100
+        }
+        console.log('getMeta', JSON.stringify(meta));
+        return meta;
+      },
+      getDuration: function (id) {
+        // 0 since is a live stream
+        console.log('duration', 0);
+        return 0;
+      },
+      getPosition: function (id) {
+        console.log('currentTime', info.currentTime);
+        return info.currentTime;
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Init tracking
+      // This library will call the getPosition method from the LivestreamAdapter object each X seconds
+      sensors.track(ibopeDescriptions.pl, ibopeDescriptions, Adapter);
+    });
+
+
+    // This not worked
+    function initPlaybackTrackingWithEvaluate(kdp) {
+      var sources = kdp.evaluate('{mediaProxy.sources}');
+      console.log('sources', sources);
+      setInterval(function () {
+        // {video.player.currentTime} and {duration} is 0 when the video is live.
+        var currentTime = kdp.evaluate('{mediaProxy.sources}');
+        console.log('currentTime', currentTime);
+      }, 500);
+    }
+  </script>
+
+
+
+
+
+</body>
+
+</html>
