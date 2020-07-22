@@ -40,21 +40,10 @@
 
     if (console && console.log) console.log('OnPage Js: fooBar1');
 
-    KWidget.addReadyCallback(function (playerId) {
-      if (console && console.log) {
-        console.log('OnPage Js: fooBar1: player ready: ' + playerId);
-      }
-
-      var kdp = document.getElementById(playerId);
-      // console.log(kdp);
-      // initPlaybackTrackingWithEvaluate(kdp);
-      initPlaybackTrackingWithEvents(kdp);
-    });
-
     var info = {
       currentTime: 0,
-      width: 100,
-      height: 100,
+      width: 1,
+      height: 1,
     };
     function initPlaybackTrackingWithEvents(kdp) {
       var startTime = new Date();
@@ -106,8 +95,8 @@
         var meta = {
           "pl": 'teleantioquia_general',
           "plv": '1.0',
-          "sx": 100,
-          "sy": 100
+          "sx": info.width,
+          "sy": info.height
         }
         console.log('getMeta', JSON.stringify(meta));
         return meta;
@@ -123,12 +112,21 @@
       }
     };
 
-    document.addEventListener('DOMContentLoaded', function () {
+
+    KWidget.addReadyCallback(function (playerId) {
+      if (console && console.log) {
+        console.log('OnPage Js: fooBar1: player ready: ' + playerId);
+      }
+
+      var kdp = document.getElementById(playerId);
+      // console.log(kdp);
+      // initPlaybackTrackingWithEvaluate(kdp);
+      initPlaybackTrackingWithEvents(kdp);
+
       // Init tracking
       // This library will call the getPosition method from the LivestreamAdapter object each X seconds
       sensors.track(ibopeDescriptions.pl, ibopeDescriptions, Adapter);
     });
-
 
     // This not worked
     function initPlaybackTrackingWithEvaluate(kdp) {
