@@ -41,21 +41,36 @@
     if (console && console.log) console.log('OnPage Js: fooBar1');
 
     var info = {
+      startTimeDate: null,
       currentTime: 0,
       width: 1,
       height: 1,
     };
     function initPlaybackTrackingWithEvents(kdp) {
       var startTime = new Date();
+      // http://player.kaltura.com/docs/api#userInitiatedPlay
+      // Triggered when the player enters a play state due to user
+      // action. For example, when user clicked the play button.
+      kdp.kBind('userInitiatedPlay', function () {
+        // Just save the first time user clicked play button
+        if (info.startTimeDate !== null) return;
+        console.log('Initial Play');
+        var startTime = new Date();
+        info.startTimeDate = startTime;
+      });
+
       // Triggers few times a second while the player plays.
       // Used to update the play head and for sync tasks.
       // The exact event interval is defined by the
       // EmbedPlayer.MonitorRate Flashvar.
       // This events stop getting invoked when the player is paused.
       kdp.kBind('monitorEvent', function () {
-        var currentTime = new Date;
+        // If start time wasnt recorded yet, ignore
+        if (info.startTimeDate === null) return;
+
+        var currentTime = new Date();
         // Elapsed time in seconds.
-        var elapsedTime = (currentTime.getTime() - startTime.getTime()) / 1000;
+        var elapsedTime = (currentTime.getTime() - info.startTimeDate.getTime()) / 1000;
         info.currentTime = elapsedTime;
       });
 
